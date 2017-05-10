@@ -23,11 +23,13 @@ func check_index_exist(line string, item_index int ) string {
 	if len(slice_line) > 4 {
 		result_item := slice_line[item_index]
 		return result_item
-
-			}
+		if item_index > 4 && strings.ContainsAny(slice_line[item_index], ","){
+			return strings.Replace(slice_line[item_index], ",", ".", -1)
 		}
 
-		return result_item
+			}
+				}
+			return result_item
 }
 
 func main() {
