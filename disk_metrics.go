@@ -9,10 +9,14 @@ import ("fmt"
 	"github.com/marpaia/graphite-golang"
 	"os/exec"
 	"bytes"
+	"strconv"
 )
 const ( utc_l  = "2006-01-02 15:04:05 UTC"
-	graphite_server	= "localhost"
-	carbon_port	= 2003
+
+)
+var(
+	graphite_server string 		= "localhost"
+	carbon_port int			= 2003
 )
 //Function for check exist metrics items in string and strip service title
 //return metric or "Nothing"
@@ -31,7 +35,6 @@ func check_index_exist(line string, item_index int ) string {
 				}
 			return result_item
 }
-
 func main() {
 
 	if len(os.Args) > 1 {
@@ -45,6 +48,12 @@ func main() {
 		out_reader := bytes.NewReader(run_sadf_output)
 
 		//Graphite connect
+		if len(os.Args) > 2 {
+			graphite_server = os.Args[2]
+		}
+		if len(os.Args) > 3 {
+			carbon_port, _ = strconv.Atoi(os.Args[3])
+		}
 		connect_prefix, prefix_err := graphite.NewGraphite(graphite_server, carbon_port)
 		if prefix_err != nil {
 			log.Fatal(prefix_err)
