@@ -29,29 +29,20 @@ func check_index_exist(line string, item_index int ) string {
 					} 
 			if len(slice_line) > 4{ 
 				return slice_line[item_index]
-				}
-<<<<<<< HEAD
-			return result_item
-}
-=======
-			
-					}	
-				return result_item
-						}	
-
->>>>>>> ff743779dd89b47ffd2ff696057d5aa7341a086a
+							}
+								}
+						return result_item
+									}
 func main() {
-
 	if len(os.Args) > 1 {
 		sar_log_file_path := os.Args[1]
 		run_sadf := exec.Command("sadf", "-d", sar_log_file_path, "--", "-d", "-p")
 		run_sadf_output, run_err := run_sadf.Output()
-
 		if run_err != nil {
 			log.Panic(run_err)
 		}
+		//Read CMD Output to reader type
 		out_reader := bytes.NewReader(run_sadf_output)
-
 		//Graphite connect
 		if len(os.Args) > 2 {
 			graphite_server = os.Args[2]
@@ -78,16 +69,14 @@ func main() {
 				timestamp, err := time.Parse(utc_l, timestamp_raw)
 				if err != nil {
 					log.Fatalln(err)
-
-				}
+						}
 				//Parse performance values from even string
-				unix_timestamp := timestamp.Unix()
-				hostname := check_index_exist(line, 0)
-				dev_name := check_index_exist(line, 3)
-				pts := check_index_exist(line, 4)
-				rd_sec := check_index_exist(line, 5)
-				wr_sec := check_index_exist(line, 6)
-
+				unix_timestamp 	:= timestamp.Unix()
+				hostname 	:= check_index_exist(line, 0)
+				dev_name 	:= check_index_exist(line, 3)
+				pts 		:= check_index_exist(line, 4)
+				rd_sec 		:= check_index_exist(line, 5)
+				wr_sec 		:= check_index_exist(line, 6)
 				//Set root graphite metric patch
 				root_path := hostname + "." + "DISK_IO" + "."
 				//Set Metrics
@@ -96,13 +85,11 @@ func main() {
 				pts_metric := graphite.NewMetric(root_path+"pts"+"."+dev_name, pts, unix_timestamp)
 				//Collect metrics in one slice
 				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, pts_metric}
-				fmt.Println(pts, rd_sec, wr_sec)
 				//Send Metrics to Graphite
 				send_err := connect_prefix.SendMetrics(metric_hash)
 				if send_err != nil {
 					fmt.Println(send_err)
 				}
-
 			}
 		}
 
