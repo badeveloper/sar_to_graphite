@@ -24,17 +24,22 @@ func check_index_exist(line string, item_index int ) string {
 	result_item := "Nothing"
 	slice_line := strings.Split(line, ";")
 	if strings.ContainsAny(slice_line[0], "#") != true {
-	if len(slice_line) > 4 {
-		result_item := slice_line[item_index]
-		return result_item
-		if item_index > 4 && strings.ContainsAny(slice_line[item_index], ","){
+	if len(slice_line) > 4 && item_index > 3 && strings.ContainsAny(slice_line[item_index], ","){
 			return strings.Replace(slice_line[item_index], ",", ".", -1)
-		}
-
-			}
+					} 
+			if len(slice_line) > 4{ 
+				return slice_line[item_index]
 				}
+<<<<<<< HEAD
 			return result_item
 }
+=======
+			
+					}	
+				return result_item
+						}	
+
+>>>>>>> ff743779dd89b47ffd2ff696057d5aa7341a086a
 func main() {
 
 	if len(os.Args) > 1 {
@@ -91,6 +96,7 @@ func main() {
 				pts_metric := graphite.NewMetric(root_path+"pts"+"."+dev_name, pts, unix_timestamp)
 				//Collect metrics in one slice
 				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, pts_metric}
+				fmt.Println(pts, rd_sec, wr_sec)
 				//Send Metrics to Graphite
 				send_err := connect_prefix.SendMetrics(metric_hash)
 				if send_err != nil {
