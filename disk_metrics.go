@@ -77,14 +77,18 @@ func main() {
 				pts 		:= check_index_exist(line, 4)
 				rd_sec 		:= check_index_exist(line, 5)
 				wr_sec 		:= check_index_exist(line, 6)
+				rd_mb := int(rd_sec) * 512 / 1024 / 1024
+				wr_mb := int(wr_sec) * 512 / 1024 / 1024
 				//Set root graphite metric patch
 				root_path := hostname + "." + "DISK_IO" + "."
 				//Set Metrics
-				rd_sec_metric := graphite.NewMetric(root_path+"rd_sec"+"."+dev_name, rd_sec, unix_timestamp)
-				wr_sec_metric := graphite.NewMetric(root_path+"wr_sec"+"."+dev_name, wr_sec, unix_timestamp)
+				rd_sec_metric := graphite.NewMetric(root_path+"rd_iops"+"."+dev_name, rd_sec, unix_timestamp)
+				wr_sec_metric := graphite.NewMetric(root_path+"wr_iops"+"."+dev_name, wr_sec, unix_timestamp)
+				rd_mb_metric  := graphite.NewMetric(root_path + "rd_mb_sec" + "." + dev_name, string(rd_mb), unix_timestamp)
+				wr_mb_metric  := graphite.NewMetric(root_path + "wr_mb_sec" + "." + dev_name, string(wr_mb), unix_timestamp)
 				pts_metric := graphite.NewMetric(root_path+"pts"+"."+dev_name, pts, unix_timestamp)
 				//Collect metrics in one slice
-				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, pts_metric}
+				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, rd_mb_metric, wr_mb_metric, pts_metric}
 				//Send Metrics to Graphite
 				send_err := connect_prefix.SendMetrics(metric_hash)
 				if send_err != nil {
