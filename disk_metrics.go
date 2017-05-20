@@ -18,6 +18,10 @@ var(
 	graphite_server string 		= "localhost"
 	carbon_port int			= 2003
 )
+func conv_float (s string) float64 {
+	i ,_ := strconv.ParseFloat(s, 64)
+	return i
+}
 //Function for check exist metrics items in string and strip service title
 //return metric or "Nothing"
 func check_index_exist(line string, item_index int ) string {
@@ -31,8 +35,7 @@ func check_index_exist(line string, item_index int ) string {
 				return slice_line[item_index]
 							}
 								}
-						return result_item
-									}
+						return result_item	}
 func main() {
 	if len(os.Args) > 1 {
 		sar_log_file_path := os.Args[1]
@@ -54,10 +57,7 @@ func main() {
 		if prefix_err != nil {
 			log.Fatal(prefix_err)
 		}
-		con_err := connect_prefix.Connect()
-		if con_err != nil {
-			log.Fatal(con_err)
-		}
+
 		fmt.Printf("%v\n", "Send metrics to Graphite server"+":"+graphite_server)
 		//Read lines from "sadf" run output
 		scan_reader := bufio.NewScanner(out_reader)
@@ -70,6 +70,10 @@ func main() {
 				if err != nil {
 					log.Fatalln(err)
 						}
+				con_err := connect_prefix.Connect()
+				if con_err != nil {
+					log.Fatal(con_err)
+				}
 				//Parse performance values from even string
 				unix_timestamp 	:= timestamp.Unix()
 				hostname 	:= check_index_exist(line, 0)
@@ -77,25 +81,33 @@ func main() {
 				pts 		:= check_index_exist(line, 4)
 				rd_sec 		:= check_index_exist(line, 5)
 				wr_sec 		:= check_index_exist(line, 6)
-				rd_mb := int(rd_sec) * 512 / 1024 / 1024
-				wr_mb := int(wr_sec) * 512 / 1024 / 1024
+				await		:= check_index_exist(line, 9)
+				util		:= check_index_exist(line, 11)
+				//Calc in MB/s
+				rd_mb := conv_float(rd_sec) * 512 / 1024 / 1024
+				wr_mb := conv_float(wr_sec) * 512 / 1024 / 1024
 				//Set root graphite metric patch
-				root_path := hostname + "." + "DISK_IO" + "."
+				root_path := hostname + "." + "DISK_IO_TEST" + "."
 				//Set Metrics
 				rd_sec_metric := graphite.NewMetric(root_path+"rd_iops"+"."+dev_name, rd_sec, unix_timestamp)
 				wr_sec_metric := graphite.NewMetric(root_path+"wr_iops"+"."+dev_name, wr_sec, unix_timestamp)
-				rd_mb_metric  := graphite.NewMetric(root_path + "rd_mb_sec" + "." + dev_name, string(rd_mb), unix_timestamp)
-				wr_mb_metric  := graphite.NewMetric(root_path + "wr_mb_sec" + "." + dev_name, string(wr_mb), unix_timestamp)
+				rd_mb_metric  := graphite.NewMetric(root_path + "rd_mb_sec" + "." + dev_name, strconv.FormatFloat(rd_mb, 'g', -1, 64 ), unix_timestamp)
+				wr_mb_metric  := graphite.NewMetric(root_path + "wr_mb_sec" + "." + dev_name, strconv.FormatFloat(wr_mb, 'g', -1, 64 ), unix_timestamp)
 				pts_metric := graphite.NewMetric(root_path+"pts"+"."+dev_name, pts, unix_timestamp)
+				await_metric := graphite.NewMetric(root_path + "await" +"." + dev_name, await, unix_timestamp)
+				util_metric  := graphite.NewMetric(root_path + "util" +"." + dev_name, util, unix_timestamp)
+				fmt.Println(rd_sec, timestamp.Local())
 				//Collect metrics in one slice
-				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, rd_mb_metric, wr_mb_metric, pts_metric}
+				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, rd_mb_metric, wr_mb_metric, pts_metric, await_metric, util_metric}
 				//Send Metrics to Graphite
 				send_err := connect_prefix.SendMetrics(metric_hash)
 				if send_err != nil {
 					fmt.Println(send_err)
 				}
-			}
-		}
+
+						}
+				connect_prefix.Disconnect()
+								}
 
 	} else {
 	fmt.Print("No Arguments!!")
