@@ -57,6 +57,10 @@ func main() {
 		if prefix_err != nil {
 			log.Fatal(prefix_err)
 		}
+		con_err := connect_prefix.Connect()
+		if con_err != nil {
+			log.Fatal(con_err)
+		}
 
 		fmt.Printf("%v\n", "Send metrics to Graphite server"+":"+graphite_server)
 		//Read lines from "sadf" run output
@@ -70,10 +74,7 @@ func main() {
 				if err != nil {
 					log.Fatalln(err)
 						}
-				con_err := connect_prefix.Connect()
-				if con_err != nil {
-					log.Fatal(con_err)
-				}
+
 				//Parse performance values from even string
 				unix_timestamp 	:= timestamp.Unix()
 				hostname 	:= check_index_exist(line, 0)
@@ -87,7 +88,7 @@ func main() {
 				rd_mb := conv_float(rd_sec) * 512 / 1024 / 1024
 				wr_mb := conv_float(wr_sec) * 512 / 1024 / 1024
 				//Set root graphite metric patch
-				root_path := hostname + "." + "DISK_IO_TEST" + "."
+				root_path := hostname + "." + "DISK_IO" + "."
 				//Set Metrics
 				rd_sec_metric := graphite.NewMetric(root_path+"rd_iops"+"."+dev_name, rd_sec, unix_timestamp)
 				wr_sec_metric := graphite.NewMetric(root_path+"wr_iops"+"."+dev_name, wr_sec, unix_timestamp)
@@ -106,7 +107,7 @@ func main() {
 				}
 
 						}
-				connect_prefix.Disconnect()
+
 								}
 
 	} else {
