@@ -47,11 +47,10 @@ func main() {
 		//Read CMD Output to reader type
 		out_reader := bytes.NewReader(run_sadf_output)
 		//Graphite connect
-		if len(os.Args) > 2 {
-			graphite_server = os.Args[2]
-		}
-		if len(os.Args) > 3 {
-			carbon_port, _ = strconv.Atoi(os.Args[3])
+		if len(os.Args) > 2 { //get server:port from args
+			conn_param := strings.Split(os.Args[2], ":")
+			graphite_server = conn_param[0]
+			carbon_port, _ = strconv.Atoi(conn_param[1])
 		}
 		connect_prefix, prefix_err := graphite.NewGraphite(graphite_server, carbon_port)
 		if prefix_err != nil {
@@ -65,7 +64,7 @@ func main() {
 		fmt.Printf("%v\n", "Send metrics to Graphite server"+":"+graphite_server)
 		//Read lines from "sadf" run output
 		scan_reader := bufio.NewScanner(out_reader)
-		for scan_reader.Scan() {
+		for string_count := 0; scan_reader.Scan(); string_count++ {
 			line := scan_reader.Text()
 			timestamp_raw := check_index_exist(line, 2)
 
@@ -97,7 +96,7 @@ func main() {
 				pts_metric := graphite.NewMetric(root_path+"pts"+"."+dev_name, pts, unix_timestamp)
 				await_metric := graphite.NewMetric(root_path + "await" +"." + dev_name, await, unix_timestamp)
 				util_metric  := graphite.NewMetric(root_path + "util" +"." + dev_name, util, unix_timestamp)
-				fmt.Println(rd_sec, timestamp.Local())
+				fmt.Printf("%s", "Send" +  string(string_count) + "strings from SADF output.."    )
 				//Collect metrics in one slice
 				metric_hash := []graphite.Metric{rd_sec_metric, wr_sec_metric, rd_mb_metric, wr_mb_metric, pts_metric, await_metric, util_metric}
 				//Send Metrics to Graphite
