@@ -15,26 +15,6 @@ const (
 	utc_layout  = "2006-01-02 15:04:05 UTC"
 )
 
-type CpuMetric struct {
-	timestamp 	int64
-	iowait  	string
-	user		string
-	nice		string
-	idle		string
-	system		string
-	steal		string
-}
-type DiskMetric struct {
-	timestamp		int64
-	r_blocks		string
-	w_blocks		string
-	pts			string
-	await			string
-	util			string
-	//	w_mb			string
-	//	r_mb			string
-}
-
 func conv_float (s string) float64 {
 	i ,_ := strconv.ParseFloat(s, 64)
 	return i
