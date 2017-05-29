@@ -127,19 +127,16 @@ func get_mem (sadf_args []string) []graphite.Metric {
 			pec_used := check_index_exist(parse_line, 5)
 			kb_buff := check_index_exist(parse_line, 6)
 			kb_cach := check_index_exist(parse_line, 7)
-			pec_comm := check_index_exist(parse_line, 8)
-			kb_active := check_index_exist(parse_line, 9)
-			kb_inact  := check_index_exist(parse_line, 10)
-			kb_dirty  := check_index_exist(parse_line, 11)
+			kb_comm := check_index_exist(parse_line, 8)
+			pec_comm := check_index_exist(parse_line, 9)
+
 			mem_graphite_metrics = append(mem_graphite_metrics, graphite.NewMetric(path_mem+ "kb_mem_free", kb_mem_free, timestamp.Unix()),
 				graphite.NewMetric(path_mem+ "kb_mem_used", kb_mem_used, timestamp.Unix()),
 				graphite.NewMetric(path_mem+ "%used", pec_used, timestamp.Unix()),
 				graphite.NewMetric(path_mem+ "kb_buf", kb_buff, timestamp.Unix()),
 				graphite.NewMetric(path_mem+ "kb_cach", kb_cach, timestamp.Unix()),
-				graphite.NewMetric(path_mem+ "%commit", pec_comm, timestamp.Unix()),
-				graphite.NewMetric(path_mem+ "kb_active",kb_active, timestamp.Unix()),
-				graphite.NewMetric(path_mem+ "kb_inact", kb_inact, timestamp.Unix()),
-				graphite.NewMetric(path_mem+ "kb_dirty", kb_dirty, timestamp.Unix()))
+				graphite.NewMetric(path_mem+ "commit", kb_comm, timestamp.Unix()),
+				graphite.NewMetric(path_mem+ "%commit", pec_comm, timestamp.Unix()))
 		}
 	}
 	return mem_graphite_metrics
@@ -201,18 +198,18 @@ func get_net (sadf_args []string) []graphite.Metric {
 			rxcmp_s := check_index_exist(parse_line, 8)
 			txcmp_s := check_index_exist(parse_line, 9)
 			rxmcst_s := check_index_exist(parse_line, 10)
-			pec_ifutil := check_index_exist(parse_line, 11)
+			//pec_ifutil := check_index_exist(parse_line, 11)
 
 			net_graphite_metrics = append(net_graphite_metrics,
-				graphite.NewMetric(path_net+ if_name +"recive_pk_sec.", rxpck_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"transmit_pk_sec.", txpck_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"recive_kb_sec.", rxkb_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"transmit_kb_sec.", txkb_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"recive_compressed_pk_sec.", rxcmp_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"transmit_compressed_pk_sec.", txcmp_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"recive_mcst_pk_sec.", rxmcst_s, timestamp.Unix()),
-				graphite.NewMetric(path_net+ if_name +"interface_util_%.", pec_ifutil, timestamp.Unix()),
-			)
+				graphite.NewMetric(path_net+ if_name +".recive_pk_sec", rxpck_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".transmit_pk_sec", txpck_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".recive_kb_sec", rxkb_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".transmit_kb_sec", txkb_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".recive_compressed_pk_sec", rxcmp_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".transmit_compressed_pk_sec", txcmp_s, timestamp.Unix()),
+				graphite.NewMetric(path_net+ if_name +".recive_mcst_pk_sec", rxmcst_s, timestamp.Unix()))
+				//graphite.NewMetric(path_net+ if_name +"interface_util_%.", pec_ifutil, timestamp.Unix()
+
 		}
 	}
 	return net_graphite_metrics
