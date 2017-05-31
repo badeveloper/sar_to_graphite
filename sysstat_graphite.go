@@ -229,62 +229,71 @@ func main() {
 		all_stat := []Stat{disk_stat, cpu_stat, swp_stat, net_stat}
 		if len(os.Args) > 2 {
 			graphite_settings := strings.Split(os.Args[2], ":")
-			graphite_server := graphite_settings[0]
-			graphite_port, _   := strconv.Atoi(graphite_settings[1])
-			graphite_prefix, graphite_err := graphite.NewGraphite(graphite_server, graphite_port)
-			if graphite_err != nil {
-				log.Panic(graphite_err)
-			}
-			connect_err := graphite_prefix.Connect()
-			if connect_err != nil {
-				log.Fatal(connect_err)
-			}
-			if len(os.Args) > 3 {
+			if len(graphite_settings) > 1 {
+				graphite_server := graphite_settings[0]
+				graphite_port, _ := strconv.Atoi(graphite_settings[1])
+				graphite_prefix, graphite_err := graphite.NewGraphite(graphite_server, graphite_port)
 
-				switch give_arg := os.Args[3]; give_arg {
-				case "-CPU":
-					graphite_prefix.SendMetrics(get_cpu(cpu_stat.args))
-					fmt.Printf("%s", "Send CPU usage stat...")
-				case "-DISK":
-					graphite_prefix.SendMetrics(get_disk(disk_stat.args))
-					fmt.Printf("%s", "Send DISK usage stat...")
-				case "-RAM":
-					graphite_prefix.SendMetrics(get_mem(mem_stat.args))
-					fmt.Printf("%s", "Send RAM usage stat...")
-				case "-SWP": graphite_prefix.SendMetrics(get_swp(swp_stat.args))
-					fmt.Printf("%s", "Send SWAP usage stat...")
-				case "-NET":
-					graphite_prefix.SendMetrics(get_net(net_stat.args))
-					fmt.Printf("%s", "Send NET_DEV usage stat..")
-				case "-ALL": for _, stat := range all_stat{
-					if stat.name == "disk"{
-						graphite_prefix.SendMetrics(get_disk(disk_stat.args))
-					}
-					if stat.name == "cpu"{
-						graphite_prefix.SendMetrics(get_cpu(stat.args))
-					}
-					if stat.name == "mem"{
-						graphite_prefix.SendMetrics(get_mem(stat.args))
-					}
-					if stat.name == "swp" {
-						graphite_prefix.SendMetrics(get_swp(stat.args))
-					}
-					if stat.name == "net" {
-						graphite_prefix.SendMetrics(get_net(stat.args))
-					}
-
+				if graphite_err != nil {
+					log.Panic(graphite_err)
+				}
+				connect_err := graphite_prefix.Connect()
+				if connect_err != nil {
+					fmt.Printf("%s","CONNECTION ERROR!!")
 				}
 
-				default:
-					fmt.Println("-CPU or -DISK")
+				if len(os.Args) > 3 {
 
+					switch give_arg := os.Args[3]; give_arg {
+					case "-CPU":
+						graphite_prefix.SendMetrics(get_cpu(cpu_stat.args))
+						fmt.Printf("%s", "Send CPU usage stat...")
+					case "-DISK":
+						graphite_prefix.SendMetrics(get_disk(disk_stat.args))
+						fmt.Printf("%s", "Send DISK usage stat...")
+					case "-RAM":
+						graphite_prefix.SendMetrics(get_mem(mem_stat.args))
+						fmt.Printf("%s", "Send RAM usage stat...")
+					case "-SWP":
+						graphite_prefix.SendMetrics(get_swp(swp_stat.args))
+						fmt.Printf("%s", "Send SWAP usage stat...")
+					case "-NET":
+						graphite_prefix.SendMetrics(get_net(net_stat.args))
+						fmt.Printf("%s", "Send NET_DEV usage stat..")
+					case "-ALL":
+						for _, stat := range all_stat {
+							if stat.name == "disk" {
+								graphite_prefix.SendMetrics(get_disk(disk_stat.args))
+							}
+							if stat.name == "cpu" {
+								graphite_prefix.SendMetrics(get_cpu(stat.args))
+							}
+							if stat.name == "mem" {
+								graphite_prefix.SendMetrics(get_mem(stat.args))
+							}
+							if stat.name == "swp" {
+								graphite_prefix.SendMetrics(get_swp(stat.args))
+							}
+							if stat.name == "net" {
+								graphite_prefix.SendMetrics(get_net(stat.args))
+							}
+
+						}
+						fmt.Printf("%s", "Send ALL stats....")
+
+					default:
+						fmt.Println("-CPU or -DISK")
+
+					}
+				} else {
+					fmt.Printf("%s", "YOU MUST GIVE METRICS TYPE ARGUMENTS!!")
 				}
 			} else {
-				fmt.Printf("%s", "YOU MUST GIVE METRICS TYPE ARGUMENTS!!")
+				fmt.Printf("%s", "SERVER:PORT")
 			}
 		} else {
-			fmt.Printf("%s", "YOU MUST GIVE GRAPHITE CONNECTION SETTINGS!")
-		}
+				fmt.Printf("%s", "YOU MUST GIVE GRAPHITE CONNECTION SETTINGS!")
+			}
 		} else {
 		fmt.Printf("%s", "YOU MSUT GIVE LOG PATH!")
 	}
