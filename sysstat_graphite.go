@@ -1,6 +1,6 @@
 package main
 
-import ("fmt"
+import (
 	"strings"
 	"bufio"
 	"log"
@@ -9,11 +9,17 @@ import ("fmt"
 	"time"
 	"os"
 	"github.com/marpaia/graphite-golang"
+	"github.com/fatih/color"
 	"strconv"
 )
 const (
 	utc_layout  = "2006-01-02 15:04:05 UTC"
+
 )
+var (
+	err_color  = color.New(color.FgRed, color.Bold)
+)
+
 type Stat struct {
 	name string
 	args []string
@@ -213,7 +219,6 @@ func get_net (sadf_args []string) []graphite.Metric {
 				graphite.NewMetric(path_net+ if_name +".transmit_compressed_pk_sec", txcmp_s, timestamp.Unix()),
 				graphite.NewMetric(path_net+ if_name +".recive_mcst_pk_sec", rxmcst_s, timestamp.Unix()))
 				//graphite.NewMetric(path_net+ if_name +"interface_util_%.", pec_ifutil, timestamp.Unix()
-
 		}
 	}
 	return net_graphite_metrics
@@ -233,33 +238,36 @@ func main() {
 				graphite_server := graphite_settings[0]
 				graphite_port, _ := strconv.Atoi(graphite_settings[1])
 				graphite_prefix, graphite_err := graphite.NewGraphite(graphite_server, graphite_port)
+				con_err_col := color.New(color.FgRed, color.Bold)
 
 				if graphite_err != nil {
-					log.Panic(graphite_err)
+
+					con_err_col.Printf("%s", "CONNECTION PREFIX ERROR!!!")
 				}
 				connect_err := graphite_prefix.Connect()
 				if connect_err != nil {
-					fmt.Printf("%s","CONNECTION ERROR!!")
+					con_err_col.Printf("%s","CONNECTION ERROR!!")
 				}
 
 				if len(os.Args) > 3 {
-
+					send_err_col := color.New(color.FgRed, color.Bold)
+					send_col := color.New(color.FgMagenta, color.Bold)
 					switch give_arg := os.Args[3]; give_arg {
 					case "-CPU":
 						graphite_prefix.SendMetrics(get_cpu(cpu_stat.args))
-						fmt.Printf("%s", "Send CPU usage stat...")
+						send_col.Printf("%s", "Send CPU usage stat...")
 					case "-DISK":
 						graphite_prefix.SendMetrics(get_disk(disk_stat.args))
-						fmt.Printf("%s", "Send DISK usage stat...")
+						send_col.Printf("%s", "Send DISK usage stat...")
 					case "-RAM":
 						graphite_prefix.SendMetrics(get_mem(mem_stat.args))
-						fmt.Printf("%s", "Send RAM usage stat...")
+						send_col.Printf("%s", "Send RAM usage stat...")
 					case "-SWP":
 						graphite_prefix.SendMetrics(get_swp(swp_stat.args))
-						fmt.Printf("%s", "Send SWAP usage stat...")
+						send_col.Printf("%s", "Send SWAP usage stat...")
 					case "-NET":
 						graphite_prefix.SendMetrics(get_net(net_stat.args))
-						fmt.Printf("%s", "Send NET_DEV usage stat..")
+						send_col.Printf("%s", "Send NET_DEV usage stat..")
 					case "-ALL":
 						for _, stat := range all_stat {
 							if stat.name == "disk" {
@@ -279,23 +287,23 @@ func main() {
 							}
 
 						}
-						fmt.Printf("%s", "Send ALL stats....")
+						send_col.Printf("%s", "Send ALL stats....")
 
 					default:
-						fmt.Println("-CPU or -DISK")
+						send_err_col.Println("Valid values -CPU, -DISK, -RAM, -SWP, -NET, -ALL")
 
 					}
 				} else {
-					fmt.Printf("%s", "YOU MUST GIVE METRICS TYPE ARGUMENTS!!")
+					err_color.Printf("%s", "YOU MUST GIVE METRICS TYPE ARGUMENTS!!")
 				}
 			} else {
-				fmt.Printf("%s", "SERVER:PORT")
+				err_color.Printf("%s", "SERVER:PORT")
 			}
 		} else {
-				fmt.Printf("%s", "YOU MUST GIVE GRAPHITE CONNECTION SETTINGS!")
+				err_color.Printf("%s", "YOU MUST GIVE GRAPHITE CONNECTION SETTINGS!")
 			}
 		} else {
-		fmt.Printf("%s", "YOU MSUT GIVE LOG PATH!")
+		err_color.Printf("%s", "YOU MSUT GIVE LOG PATH!")
 	}
 
 }
