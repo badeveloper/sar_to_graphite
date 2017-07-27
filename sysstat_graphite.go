@@ -109,7 +109,7 @@ func get_disk (sadf_args []string) []graphite.Metric {
 				graphite.NewMetric(path_disk + "await." + dev_name, await, timestamp.Unix()),
 				graphite.NewMetric(path_disk + "util." + dev_name, util, timestamp.Unix()),
 				graphite.NewMetric(path_disk + "rd_mb." + dev_name, strconv.FormatFloat(rd_mb, 'g', -1, 64), timestamp.Unix()),
-				graphite.NewMetric(path_disk + "wr_mb." + dev_name, strconv.FormatFloat(wr_mb, '8', -1, 64), timestamp.Unix()))
+				graphite.NewMetric(path_disk + "wr_mb." + dev_name, strconv.FormatFloat(wr_mb, 'g', -1, 64), timestamp.Unix()))
 
 				}
 	}
